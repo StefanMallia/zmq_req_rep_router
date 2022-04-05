@@ -22,17 +22,19 @@ impl RequestClient
     {
         let mut responder = zmq::Message::new();
         let mut response = zmq::Message::new();
-        
-        self.socket.lock().await.send(&destination, zmq::SNDMORE).unwrap();
-        self.socket.lock().await.send("", zmq::SNDMORE).unwrap();
-        self.socket.lock().await.send(&data, 0).unwrap();
 
-        self.socket.lock().await.recv(&mut responder, zmq::SNDMORE).unwrap();
-        self.socket.lock().await.recv(&mut response, zmq::SNDMORE).unwrap();
+        let socket = self.socket.lock().await;
+        
+        socket.send(&destination, zmq::SNDMORE).unwrap();
+        socket.send("", zmq::SNDMORE).unwrap();
+        socket.send(&data, 0).unwrap();
+
+        socket.recv(&mut responder, zmq::SNDMORE).unwrap();
+        socket.recv(&mut response, zmq::SNDMORE).unwrap();
         if response.as_str().unwrap()==""
             && responder.as_str().unwrap() == destination
         {
-            self.socket.lock().await.recv(&mut response, 0).unwrap();
+            socket.recv(&mut response, 0).unwrap();
             return Ok(response.as_str().unwrap().to_string())
         }
         return Err(format!("Incorrect response returned: {}", response.as_str().unwrap()))         
