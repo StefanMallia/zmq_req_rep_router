@@ -9,5 +9,7 @@
 !server/src/*
 !server/Cargo.toml
 !message_broker
+!message_broker/src
+!message_broker/src/*
 !examples
 
