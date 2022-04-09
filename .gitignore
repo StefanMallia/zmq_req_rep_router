@@ -5,5 +5,9 @@
 !client/src/*
 !client/Cargo.toml
 !server
+!server/src
+!server/src/*
+!server/Cargo.toml
 !message_broker
 !examples
+
