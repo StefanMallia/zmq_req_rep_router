@@ -1,11 +1,7 @@
-use std::sync::Arc;
-
 pub struct ReplyServer
 {
-    socket: Arc<futures::lock::Mutex<zmq::Socket>>,
+    socket: zmq::Socket
 }
-
-
 
 impl ReplyServer
 {
@@ -16,14 +12,15 @@ impl ReplyServer
         let socket = ctx.socket(zmq::DEALER).unwrap();
         socket.set_identity(&identity.as_bytes()).unwrap();
         socket.connect(connection_string).unwrap();
-        let socket = Arc::new(futures::lock::Mutex::new(socket));
         ReplyServer{socket}
     }
 }
 
-trait RequestProcessor
+pub trait ProcessRequest
 {
-    fn receive_request(&self, socket: &zmq::Socket)    {
+    fn receive_request(&self, reply_server: &ReplyServer)
+    {
+        let socket = &reply_server.socket;
         let message_multi: Vec<Vec<u8>> = socket.recv_multipart(0).unwrap();
         let requester = zmq::Message::from(&message_multi[1]);
         let request_msg = zmq::Message::from(&message_multi[3]);        
