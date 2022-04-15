@@ -5,7 +5,7 @@ pub async fn main()
 {
     let config_loader: config_loader::ConfigLoader = config_loader::ConfigLoader::new("appconfig.toml");
 
-    let request_client = RequestClient::new("Client", &config_loader.get_value("message_broker_address").unwrap());
+    let request_client = RequestClient::new("Client", &config_loader.get_value("message_router_address").unwrap());
 
     loop
     {

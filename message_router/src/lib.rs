@@ -1,17 +1,17 @@
-pub struct MessageBroker
+pub struct MessageRouter
 {
     socket: zmq::Socket
 }
 
-impl MessageBroker
+impl MessageRouter
 {
-    pub fn new(connection_string: &str) -> MessageBroker
+    pub fn new(connection_string: &str) -> MessageRouter
     {
         let ctx = zmq::Context::new();
 
         let socket = ctx.socket(zmq::ROUTER).unwrap();
         socket.bind(connection_string).unwrap();
-        MessageBroker{socket}
+        MessageRouter{socket}
     }
 
     pub async fn route_messages(&self)

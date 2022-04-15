@@ -18,7 +18,7 @@ fn main()
 {
     let config_loader: config_loader::ConfigLoader = config_loader::ConfigLoader::new("appconfig.toml");
 
-    let reply_server = ReplyServer::new("Server", &config_loader.get_value("message_broker_address").unwrap());
+    let reply_server = ReplyServer::new("Server", &config_loader.get_value("message_router_address").unwrap());
     let request_processor = RequestProcessor{};
 
     loop

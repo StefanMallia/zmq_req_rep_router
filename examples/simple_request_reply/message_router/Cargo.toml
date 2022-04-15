@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-zmq_message_broker = {path="../../../message_broker/"}
+zmq_message_router = {path="../../../message_router/"}
 config_loader = {version = "0.1.0", git="https://github.com/StefanMallia/config_loader", branch="main"}
