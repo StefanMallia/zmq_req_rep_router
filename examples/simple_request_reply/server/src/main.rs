@@ -22,5 +22,5 @@ pub async fn main()
     let reply_server = ReplyServer::new("Server", request_processor,
                                         &config_loader.get_value("message_router_address").unwrap());
 
-    reply_server.receive_request().await;
+    reply_server.receive_requests().await;
 }

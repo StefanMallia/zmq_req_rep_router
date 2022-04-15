@@ -26,7 +26,7 @@ impl<T: ProcessRequest> ReplyServer<T>
         ReplyServer{socket, message_processor}
     }
 
-    pub async fn receive_request(&self)
+    pub async fn receive_requests(&self)
     {
         loop
         {
