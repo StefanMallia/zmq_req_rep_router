@@ -1,8 +1,6 @@
 use rep_server::{ProcessRequest, ReplyServer};
 
-struct RequestProcessor
-{
-}
+struct RequestProcessor {}
 
 impl ProcessRequest for RequestProcessor
 {
@@ -14,15 +12,15 @@ impl ProcessRequest for RequestProcessor
     }
 }
 
-fn main()
+#[tokio::main]
+pub async fn main()
 {
+
     let config_loader: config_loader::ConfigLoader = config_loader::ConfigLoader::new("appconfig.toml");
 
-    let reply_server = ReplyServer::new("Server", &config_loader.get_value("message_router_address").unwrap());
     let request_processor = RequestProcessor{};
+    let reply_server = ReplyServer::new("Server", request_processor,
+                                        &config_loader.get_value("message_router_address").unwrap());
 
-    loop
-    {
-        request_processor.receive_request(&reply_server);
-    }
+    reply_server.receive_request().await;
 }
