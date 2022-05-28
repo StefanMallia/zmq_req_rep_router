@@ -1,7 +1,8 @@
 use std::sync::Arc;
+use futures::lock::Mutex;
 
 pub struct ReplyServer<T>
-where T: ProcessRequest
+where T: ProcessRequest + Send + std::marker::Sync
 {
     socket: Arc::<futures::lock::Mutex<zmq::Socket>>,
     message_processor: T
@@ -12,7 +13,7 @@ pub trait ProcessRequest
     fn process_message(&self, message: &str) -> String;
 }
 
-impl<T: ProcessRequest> ReplyServer<T>
+impl<T: ProcessRequest + Send + std::marker::Sync> ReplyServer<T>
 {
     pub fn new(identity:&str, message_processor: T, 
                connection_string: &str) -> ReplyServer<T>
@@ -23,6 +24,7 @@ impl<T: ProcessRequest> ReplyServer<T>
         socket.set_identity(&identity.as_bytes()).unwrap();
         socket.connect(connection_string).unwrap();
         let socket = Arc::new(futures::lock::Mutex::new(socket));
+        let message_processor = message_processor;
         ReplyServer{socket, message_processor}
     }
 
