@@ -13,6 +13,7 @@ impl MessageRouter
 
         let socket = ctx.socket(zmq::ROUTER).unwrap();
         socket.set_router_mandatory(true);
+        socket.set_router_handover(true);
         socket.bind(connection_string).unwrap();
         let socket = Arc::new(futures::lock::Mutex::new(socket));
         MessageRouter{socket}
