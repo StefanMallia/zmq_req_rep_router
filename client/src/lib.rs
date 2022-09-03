@@ -20,6 +20,11 @@ impl RequestClient
 
     pub async fn send_request(&self, destination: &str, data: &str) -> Result<String, String>
     {
+        return self.send_request_bytes(destination, data.as_bytes()).await;
+    }
+
+    pub async fn send_request_bytes(&self, destination: &str, data: &[u8]) -> Result<String, String>
+    {
         let mut responder = zmq::Message::new();
         let mut response = zmq::Message::new();
 
