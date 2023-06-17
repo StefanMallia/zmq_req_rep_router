@@ -12,9 +12,10 @@ impl MessageRouter
         let ctx = zmq::Context::new();
 
         let socket = ctx.socket(zmq::ROUTER).unwrap();
-        socket.set_router_mandatory(true);
-        socket.set_router_handover(true);
+        socket.set_router_mandatory(true).unwrap();
+        socket.set_router_handover(true).unwrap();
         socket.bind(connection_string).unwrap();
+        rust_log::info!("MessageRouter listening on: {}", connection_string);
         let socket = Arc::new(futures::lock::Mutex::new(socket));
         MessageRouter{socket}
     }
@@ -44,7 +45,12 @@ impl MessageRouter
                     message[0] = message[2].clone();
                     message[2] = destination;
                     message[4] = err.to_string().as_bytes().to_vec();
-                    socket.send_multipart(&message, 0);
+                    let result = socket.send_multipart(&message, 0);
+                    match result
+                    {
+                        Ok(()) => {},
+                        Err(err) => {rust_log::warn!("Failed to send message: {}.", err);}
+                    }
 
                 }
             }
