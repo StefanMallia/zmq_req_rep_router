@@ -12,15 +12,13 @@ impl ProcessRequest for RequestProcessor
     }
 }
 
-#[tokio::main]
-pub async fn main()
+pub fn main()
 {
-
     let config_loader: config_loader::ConfigLoader = config_loader::ConfigLoader::new("appconfig.toml");
 
     let request_processor = RequestProcessor{};
     let reply_server = ReplyServer::new("Server", request_processor,
-                                        &config_loader.get_value("message_router_address").unwrap());
+                                        &config_loader.get_string("message_router_address").unwrap());
 
-    reply_server.receive_requests().await;
+    reply_server.receive_requests();
 }
