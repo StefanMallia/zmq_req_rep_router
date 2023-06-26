@@ -1,10 +1,7 @@
-use std::sync::Arc;
-use futures::lock::Mutex;
-
 pub struct ReplyServer<T>
 where T: ProcessRequest + Send + std::marker::Sync
 {
-    socket: Arc::<futures::lock::Mutex<zmq::Socket>>,
+    socket: zmq::Socket,
     message_processor: T
 }
 
@@ -23,17 +20,15 @@ impl<T: ProcessRequest + Send + std::marker::Sync> ReplyServer<T>
         let socket = ctx.socket(zmq::DEALER).unwrap();
         socket.set_identity(&identity.as_bytes()).unwrap();
         socket.connect(connection_string).unwrap();
-        let socket = Arc::new(futures::lock::Mutex::new(socket));
         let message_processor = message_processor;
         ReplyServer{socket, message_processor}
     }
 
-    pub async fn receive_requests(&self)
+    pub fn receive_requests(&self)
     {
         loop
         {
-            let socket = self.socket.lock().await;
-            let message_multi: Vec<Vec<u8>> = socket.recv_multipart(0).unwrap();
+            let message_multi: Vec<Vec<u8>> = self.socket.recv_multipart(0).unwrap();
             let requester = zmq::Message::from(&message_multi[1]);
             let request_msg = zmq::Message::from(&message_multi[3]);
 
@@ -45,7 +40,7 @@ impl<T: ProcessRequest + Send + std::marker::Sync> ReplyServer<T>
                    "".to_string(),
                    response_msg];
         
-            socket.send_multipart(&response, 0).unwrap();
+            self.socket.send_multipart(&response, 0).unwrap();
         }
     }
 }

@@ -1,8 +1,6 @@
-use std::sync::Arc;
-
 pub struct MessageRouter
 {
-  socket: Arc<futures::lock::Mutex<zmq::Socket>>
+  socket: zmq::Socket
 }
 
 impl MessageRouter
@@ -16,16 +14,14 @@ impl MessageRouter
         socket.set_router_handover(true).unwrap();
         socket.bind(connection_string).unwrap();
         rust_log::info!("MessageRouter listening on: {}", connection_string);
-        let socket = Arc::new(futures::lock::Mutex::new(socket));
         MessageRouter{socket}
     }
 
-    pub async fn route_messages(&self)
+    pub fn route_messages(&self)
     {
         loop
         {
-            let socket = self.socket.lock().await;
-            let mut message: Vec<Vec<u8>> = socket.recv_multipart(0).unwrap();
+            let mut message: Vec<Vec<u8>> = self.socket.recv_multipart(0).unwrap();
 
             let source_address = message[0].clone();
             let dest_address = message[2].clone();
@@ -33,9 +29,7 @@ impl MessageRouter
             message[0] = dest_address;
             message[2] = source_address;
 
-            
-
-            let result = socket.send_multipart(&message, 0);
+            let result = self.socket.send_multipart(&message, 0);
             match result
             {
                 Ok(res) => res,
@@ -45,13 +39,12 @@ impl MessageRouter
                     message[0] = message[2].clone();
                     message[2] = destination;
                     message[4] = err.to_string().as_bytes().to_vec();
-                    let result = socket.send_multipart(&message, 0);
+                    let result = self.socket.send_multipart(&message, 0);
                     match result
                     {
                         Ok(()) => {},
                         Err(err) => {rust_log::warn!("Failed to send message: {}.", err);}
                     }
-
                 }
             }
         }    
